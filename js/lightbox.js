@@ -150,79 +150,95 @@ document.addEventListener("DOMContentLoaded", () => {
   // -------------------
   // Touch gestures
   // -------------------
-  lightbox.addEventListener("touchstart", (e) => {
-    if (!lightboxOpen) return;
-    const img = mediaContainer.querySelector("img");
-    if (!img) return;
+// -------------------
+// Touch gestures (FIXED FOR IPAD)
+// -------------------
+    lightbox.addEventListener("touchstart", (e) => {
+	if (!lightboxOpen) return;
 
-    if (e.touches.length === 2) {
-      isPinching = true;
-      startDistance = getDistance(e.touches);
-      startScale = scale;
-      return;
-    }
+	const img = mediaContainer.querySelector("img");
+	if (!img) return;
 
-    if (scale > 1) {
-      isDraggingImage = true;
-      dragStartX = e.touches[0].clientX - translateX;
-      dragStartY = e.touches[0].clientY - translateY;
-      return;
-    }
-
-    // swipe
-    touchStartX = e.changedTouches[0].screenX;
-    isSwiping = true;
-    content.style.transition = "none";
-  }, { passive: true });
-
-  lightbox.addEventListener("touchmove", (e) => {
-    const img = mediaContainer.querySelector("img");
-    if (!img) return;
-
-    // pinch
-    if (isPinching && e.touches.length === 2) {
-      const newDistance = getDistance(e.touches);
-      scale = Math.min(Math.max(startScale * (newDistance / startDistance), 1), 4);
-      updateTransform(img);
-      return;
-    }
-
-    // drag image
-    if (isDraggingImage && scale > 1) {
-      translateX = e.touches[0].clientX - dragStartX;
-      translateY = e.touches[0].clientY - dragStartY;
-      updateTransform(img);
-      return;
-    }
-
-    // swipe
-    if (isSwiping && scale === 1) {
-      touchEndX = e.changedTouches[0].screenX;
-      const deltaX = touchEndX - touchStartX;
-      content.style.transform = `translateX(${deltaX}px)`;
-    }
-  }, { passive: true });
-
-  lightbox.addEventListener("touchend", () => {
-    if (isPinching) { isPinching = false; return; }
-    if (isDraggingImage) { isDraggingImage = false; return; }
-
-    if (isSwiping) {
-      const deltaX = touchEndX - touchStartX;
-      const threshold = 70;
-      content.style.transition = "transform 0.3s ease";
-
-      if (deltaX < -threshold) {
-        content.style.transform = "translateX(-100%)";
-        setTimeout(() => showImage(currentIndex + 1), 250);
-      } else if (deltaX > threshold) {
-        content.style.transform = "translateX(100%)";
-        setTimeout(() => showImage(currentIndex - 1), 250);
-      } else {
-        content.style.transform = "translateX(0)";
-      }
-      isSwiping = false;
-    }
-  }, { passive: true });
-
-});
+	if (e.touches.length === 2) {
+	    isPinching = true;
+	    startDistance = getDistance(e.touches);
+	    startScale = scale;
+	    e.preventDefault();
+	    return;
+	}
+	
+	if (scale > 1) {
+	    isDraggingImage = true;
+	    dragStartX = e.touches[0].clientX - translateX;
+	    dragStartY = e.touches[0].clientY - translateY;
+	    e.preventDefault();
+	    return;
+	}
+	
+	// swipe
+	touchStartX = e.touches[0].clientX;
+	touchEndX = touchStartX;
+	isSwiping = true;
+	content.style.transition = "none";
+    }, { passive: false });
+    
+    lightbox.addEventListener("touchmove", (e) => {
+	const img = mediaContainer.querySelector("img");
+	if (!img) return;
+	
+	if (isPinching && e.touches.length === 2) {
+	    const newDistance = getDistance(e.touches);
+	    scale = Math.min(Math.max(startScale * (newDistance / startDistance), 1), 4);
+	    updateTransform(img);
+	    e.preventDefault();
+	    return;
+	}
+	
+	if (isDraggingImage && scale > 1) {
+	    translateX = e.touches[0].clientX - dragStartX;
+	    translateY = e.touches[0].clientY - dragStartY;
+	    updateTransform(img);
+	    e.preventDefault();
+	    return;
+	}
+	
+	if (isSwiping && scale === 1) {
+	    touchEndX = e.touches[0].clientX;
+	    const deltaX = touchEndX - touchStartX;
+	    content.style.transform = `translateX(${deltaX}px)`;
+	    e.preventDefault();
+	}
+    }, { passive: false });
+    
+    lightbox.addEventListener("touchend", () => {
+	if (isPinching) { isPinching = false; return; }
+	if (isDraggingImage) { isDraggingImage = false; return; }
+	
+	if (isSwiping) {
+	    const deltaX = touchEndX - touchStartX;
+	    const threshold = 70;
+	    
+	    content.style.transition = "transform 0.3s ease";
+	    
+	    if (deltaX < -threshold) {
+		content.style.transform = "translateX(-100%)";
+		setTimeout(() => {
+		    content.style.transform = "translateX(0)";
+		    showImage(currentIndex + 1);
+		}, 250);
+	    } 
+	    else if (deltaX > threshold) {
+		content.style.transform = "translateX(100%)";
+		setTimeout(() => {
+		    content.style.transform = "translateX(0)";
+		    showImage(currentIndex - 1);
+		}, 250);
+	    } 
+	    else {
+		content.style.transform = "translateX(0)";
+	    }
+	    
+	    isSwiping = false;
+	}
+    }, { passive: false });
+    
