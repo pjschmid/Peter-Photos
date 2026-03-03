@@ -1,33 +1,26 @@
- let thumbs = [];
-let currentIndex = -1;
+// minimal working lightbox
 
-// Inject lightbox container
-document.addEventListener("DOMContentLoaded", () => {
-  thumbs = Array.from(document.querySelectorAll(".thumb"));
-
-  // Insert lightbox if missing
-  if (!document.getElementById("lightbox")) {
+function openLightbox(thumb) {
+  // make sure the container exists
+  let lightbox = document.getElementById("lightbox");
+  if (!lightbox) {
     document.body.insertAdjacentHTML("beforeend", `
-      <div id="lightbox">
+      <div id="lightbox" onclick="closeLightbox()">
         <div class="lightbox-content" onclick="event.stopPropagation()">
           <div id="lightbox-media"></div>
           <div id="lightbox-caption"></div>
           <div id="lightbox-meta"></div>
         </div>
-        <div class="esc-hint">Esc → close</div>
       </div>
     `);
+    lightbox = document.getElementById("lightbox");
   }
-});
 
-// Open lightbox
-function openLightbox(thumb) {
-  const lightbox = document.getElementById("lightbox");
   const media = document.getElementById("lightbox-media");
   const caption = document.getElementById("lightbox-caption");
   const meta = document.getElementById("lightbox-meta");
 
-  media.innerHTML = "";
+  media.innerHTML = ""; // clear previous
   const type = thumb.dataset.type || "image";
 
   if (type === "video") {
@@ -55,30 +48,20 @@ function openLightbox(thumb) {
     thumb.dataset.note ? thumb.dataset.note : ""
   ].filter(Boolean).join(" • ");
 
-  currentIndex = thumbs.indexOf(thumb);
   lightbox.classList.add("show");
 }
 
-// Close lightbox
 function closeLightbox() {
+  const lightbox = document.getElementById("lightbox");
+  if (!lightbox) return;
   document.getElementById("lightbox-media").innerHTML = "";
-  document.getElementById("lightbox").classList.remove("show");
+  lightbox.classList.remove("show");
 }
 
 // Arrow keys + Esc
 document.addEventListener("keydown", (e) => {
   const lightbox = document.getElementById("lightbox");
-  if (!lightbox.classList.contains("show")) return;
-  if (e.repeat) return;
+  if (!lightbox || !lightbox.classList.contains("show")) return;
 
   if (e.key === "Escape") closeLightbox();
-  else if (e.key === "ArrowLeft") showImage(currentIndex - 1);
-  else if (e.key === "ArrowRight") showImage(currentIndex + 1);
 });
-
-function showImage(index) {
-  if (thumbs.length === 0) return;
-  if (index < 0) index = thumbs.length - 1;
-  if (index >= thumbs.length) index = 0;
-  openLightbox(thumbs[index]);
-}
