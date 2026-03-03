@@ -102,71 +102,18 @@ document.addEventListener("DOMContentLoaded", () => {
   // -----------------------
   // Keyboard navigation
   // -----------------------
-  window.addEventListener("keydown", (e) => {
-    if (!lightboxOpen) return;
+window.addEventListener("keydown", (e) => {
+    const lightbox = document.getElementById("lightbox");
+    if (!lightbox || !lightbox.classList.contains("show")) return;
+
     if (e.repeat) return;
 
-    if (e.key === "Escape") closeLightbox();
-    else if (e.key === "ArrowLeft") showImage(currentIndex - 1);
-    else if (e.key === "ArrowRight") showImage(currentIndex + 1);
-  });
-
-  // -----------------------
-  // Touch gestures
-  // -----------------------
-  lightbox.addEventListener("touchstart", (e) => {
-    if (!lightboxOpen) return;
-    const img = mediaContainer.querySelector("img");
-    if (!img) return;
-
-    if (e.touches.length === 2) {
-      isPinching = true;
-      startDistance = getDistance(e.touches);
-      startScale = scale;
-    } else if (scale > 1 && e.touches.length === 1) {
-      isDraggingImage = true;
-      dragStartX = e.touches[0].clientX - translateX;
-      dragStartY = e.touches[0].clientY - translateY;
-    } else if (scale === 1 && e.touches.length === 1) {
-      isSwiping = true;
-      touchStartX = e.touches[0].clientX;
-      content.style.transition = "none";
+    if (e.key === "Escape") {
+        closeLightbox();
+    } else if (e.key === "ArrowLeft") {
+        showImage(currentIndex - 1);
+    } else if (e.key === "ArrowRight") {
+        showImage(currentIndex + 1);
     }
-  }, { passive: true });
-
-  lightbox.addEventListener("touchmove", (e) => {
-    const img = mediaContainer.querySelector("img");
-    if (!img) return;
-
-    if (isPinching && e.touches.length === 2) {
-      const newDist = getDistance(e.touches);
-      scale = Math.min(Math.max(startScale * (newDist / startDistance), 1), 4);
-      img.style.transform = `translate3d(${translateX}px,${translateY}px,0) scale(${scale})`;
-    } else if (isDraggingImage) {
-      translateX = e.touches[0].clientX - dragStartX;
-      translateY = e.touches[0].clientY - dragStartY;
-      img.style.transform = `translate3d(${translateX}px,${translateY}px,0) scale(${scale})`;
-    } else if (isSwiping) {
-      const deltaX = e.touches[0].clientX - touchStartX;
-      content.style.transform = `translate3d(${deltaX}px,0,0)`;
-    }
-  }, { passive: true });
-
-  lightbox.addEventListener("touchend", (e) => {
-    if (isPinching) { isPinching = false; return; }
-    if (isDraggingImage) { isDraggingImage = false; return; }
-
-    if (isSwiping) {
-      const deltaX = e.changedTouches[0].clientX - touchStartX;
-      const threshold = 70;
-      content.style.transition = "transform 0.3s ease";
-
-      if (deltaX < -threshold) showImage(currentIndex + 1);
-      else if (deltaX > threshold) showImage(currentIndex - 1);
-      else content.style.transform = `translate3d(0,0,0)`;
-
-      isSwiping = false;
-    }
-  });
-
 });
+
