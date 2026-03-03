@@ -1,16 +1,11 @@
- // ===============================
-// LIGHTBOX JS - SMOOTH MOBILE + DESKTOP
-// ===============================
-
 let thumbs = [];
 let currentIndex = -1;
 
 // Zoom / Drag
 let scale = 1, translateX = 0, translateY = 0;
-let targetScale = 1, targetTranslateX = 0, targetTranslateY = 0;
-let isPinching = false, isDraggingImage = false;
+let startScale = 1, startDistance = 0;
 let dragStartX = 0, dragStartY = 0;
-let startDistance = 0, startScale = 1;
+let isPinching = false, isDraggingImage = false;
 
 // Swipe
 let touchStartX = 0, touchEndX = 0;
@@ -22,16 +17,14 @@ let lightboxOpen = false;
 document.addEventListener("DOMContentLoaded", () => {
 
   thumbs = Array.from(document.querySelectorAll(".thumb"));
-
   thumbs.forEach(thumb => {
     thumb.addEventListener("click", e => {
-      e.preventDefault(); 
-      e.stopPropagation(); 
+      e.preventDefault();
+      e.stopPropagation();
       openLightbox(thumb);
     });
   });
 
-  // Insert lightbox HTML if missing
   if (!document.getElementById("lightbox")) {
     const lightboxHTML = `
       <div id="lightbox">
@@ -50,33 +43,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const content = document.querySelector(".lightbox-content");
   const mediaContainer = document.getElementById("lightbox-media");
 
-  // -------------------
-  // HELPER FUNCTIONS
-  // -------------------
-  function getDistance(touches) {
-    const dx = touches[0].clientX - touches[1].clientX;
-    const dy = touches[0].clientY - touches[1].clientY;
-    return Math.sqrt(dx*dx + dy*dy);
-  }
-
-  function animateTransform(img) {
-    scale += (targetScale - scale) * 0.2;
-    translateX += (targetTranslateX - translateX) * 0.2;
-    translateY += (targetTranslateY - translateY) * 0.2;
-    img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-
-    if (Math.abs(targetScale - scale) > 0.001 ||
-        Math.abs(targetTranslateX - translateX) > 0.5 ||
-        Math.abs(targetTranslateY - translateY) > 0.5) {
-      requestAnimationFrame(() => animateTransform(img));
-    }
-  }
-
   function resetZoom() {
     scale = 1; translateX = 0; translateY = 0;
-    targetScale = 1; targetTranslateX = 0; targetTranslateY = 0;
     const img = mediaContainer.querySelector("img");
     if (img) img.style.transform = `translate(0px,0px) scale(1)`;
+  }
+
+  function updateTransform() {
+    const img = mediaContainer.querySelector("img");
+    if (!img) return;
+    img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
   }
 
   function showImage(index) {
@@ -98,7 +74,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       const img = document.createElement("img");
       img.src = thumb.src;
-      img.style.transition = "transform 0.2s ease";
       mediaContainer.appendChild(img);
     }
 
@@ -134,20 +109,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -------------------
-  // KEYBOARD
+  // Keyboard
   // -------------------
   document.addEventListener("keydown", e => {
     if (!lightboxOpen) return;
     if (e.repeat) return;
 
-    if (e.key === "Escape") { e.preventDefault(); closeLightbox(); }
-    else if (e.key === "ArrowLeft") { e.preventDefault(); showImage(currentIndex - 1); }
-    else if (e.key === "ArrowRight") { e.preventDefault(); showImage(currentIndex + 1); }
+    if (e.key === "Escape") closeLightbox();
+    else if (e.key === "ArrowLeft") showImage(currentIndex - 1);
+    else if (e.key === "ArrowRight") showImage(currentIndex + 1);
   });
 
   // -------------------
-  // TOUCH GESTURES
+  // Touch gestures
   // -------------------
+  function getDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx*dx + dy*dy);
+  }
+
   lightbox.addEventListener("touchstart", e => {
     if (!lightboxOpen) return;
     const img = mediaContainer.querySelector("img");
@@ -156,21 +137,21 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.touches.length === 2) {
       isPinching = true;
       startDistance = getDistance(e.touches);
-      startScale = targetScale;
+      startScale = scale;
       return;
     }
 
-    if (targetScale > 1) {
+    if (scale > 1) {
       isDraggingImage = true;
-      dragStartX = e.touches[0].clientX - targetTranslateX;
-      dragStartY = e.touches[0].clientY - targetTranslateY;
+      dragStartX = e.touches[0].clientX - translateX;
+      dragStartY = e.touches[0].clientY - translateY;
       return;
     }
 
+    // swipe
     touchStartX = e.changedTouches[0].screenX;
     isSwiping = true;
     content.style.transition = "none";
-
   }, { passive: true });
 
   lightbox.addEventListener("touchmove", e => {
@@ -179,27 +160,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (isPinching && e.touches.length === 2) {
       const newDistance = getDistance(e.touches);
-      targetScale = Math.min(Math.max(startScale * (newDistance / startDistance), 1), 4);
-      animateTransform(img);
+      scale = Math.min(Math.max(startScale * (newDistance / startDistance), 1), 4);
+      updateTransform();
       return;
     }
 
-    if (isDraggingImage && targetScale > 1) {
-      targetTranslateX = e.touches[0].clientX - dragStartX;
-      targetTranslateY = e.touches[0].clientY - dragStartY;
-      animateTransform(img);
+    if (isDraggingImage && scale > 1) {
+      translateX = e.touches[0].clientX - dragStartX;
+      translateY = e.touches[0].clientY - dragStartY;
+      updateTransform();
       return;
     }
 
-    if (isSwiping && targetScale === 1) {
+    if (isSwiping && scale === 1) {
       touchEndX = e.changedTouches[0].screenX;
       const deltaX = touchEndX - touchStartX;
       content.style.transform = `translateX(${deltaX}px)`;
     }
-
   }, { passive: true });
 
-  lightbox.addEventListener("touchend", () => {
+  lightbox.addEventListener("touchend", e => {
     if (isPinching) { isPinching = false; return; }
     if (isDraggingImage) { isDraggingImage = false; return; }
 
