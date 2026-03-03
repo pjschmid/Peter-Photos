@@ -1,22 +1,14 @@
- // ===============================
-// FULLY WORKING LIGHTBOX (desktop + touch + pinch)
-// ===============================
-
 document.addEventListener("DOMContentLoaded", () => {
-
   const thumbs = Array.from(document.querySelectorAll(".thumb"));
   let currentIndex = 0;
   let lightboxOpen = false;
 
-  // Zoom / drag state
   let scale = 1, translateX = 0, translateY = 0;
   let isPinching = false, isDraggingImage = false, dragStartX = 0, dragStartY = 0;
   let startDistance = 0, startScale = 1;
 
-  // Swipe state
   let touchStartX = 0, touchEndX = 0, isSwiping = false;
 
-  // Create lightbox once
   let lightbox = document.getElementById("lightbox");
   if (!lightbox) {
     lightbox = document.createElement("div");
@@ -44,6 +36,12 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateTransform() {
     const img = mediaContainer.querySelector("img");
     if (img) img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+  }
+
+  function getDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
   }
 
   function showImage(index) {
@@ -95,12 +93,10 @@ document.addEventListener("DOMContentLoaded", () => {
     resetZoom();
   }
 
-  // ---------- Attach click to thumbnails ----------
   thumbs.forEach((thumb, i) => {
     thumb.addEventListener("click", () => showImage(i));
   });
 
-  // ---------- Keyboard navigation ----------
   document.addEventListener("keydown", (e) => {
     if (!lightboxOpen) return;
     if (e.repeat) return;
@@ -110,24 +106,19 @@ document.addEventListener("DOMContentLoaded", () => {
     else if (e.key === "ArrowRight") showImage(currentIndex + 1);
   });
 
-  // ---------- Close on background click ----------
   lightbox.addEventListener("click", (e) => {
     if (e.target === lightbox) closeLightbox();
   });
 
-  // ---------- Touch gestures ----------
+  // ----- Touch events -----
   lightbox.addEventListener("touchstart", (e) => {
     if (!lightboxOpen) return;
     const img = mediaContainer.querySelector("img");
     if (!img) return;
 
     if (e.touches.length === 2) {
-      // Pinch start
       isPinching = true;
-      startDistance = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
+      startDistance = getDistance(e.touches);
       startScale = scale;
       return;
     }
@@ -139,8 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Swipe
-    touchStartX = e.changedTouches[0].screenX;
+    touchStartX = e.touches[0].screenX;
     isSwiping = true;
     content.style.transition = "none";
   }, { passive: true });
@@ -150,10 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!img) return;
 
     if (isPinching && e.touches.length === 2) {
-      const newDistance = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
+      const newDistance = getDistance(e.touches);
       scale = Math.min(Math.max(startScale * (newDistance / startDistance), 1), 4);
       updateTransform();
       return;
@@ -167,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (isSwiping && scale === 1) {
-      touchEndX = e.changedTouches[0].screenX;
+      touchEndX = e.touches[0].screenX;
       const deltaX = touchEndX - touchStartX;
       content.style.transform = `translateX(${deltaX}px)`;
     }
@@ -191,6 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         content.style.transform = "translateX(0)";
       }
+
       isSwiping = false;
     }
   }, { passive: true });
