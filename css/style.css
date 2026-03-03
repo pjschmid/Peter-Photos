@@ -334,20 +334,22 @@ h1 {
 /* Lightbox overlay */
 
 #lightbox {
-  position: fixed;
-  inset: 0;
+    position: fixed;
+    top: 0; left: 0;
+    inset: 0;
+    width: 100%; height: 100%
 
   touch-action: none;
   overflow: hidden;
   
-  display: flex;
+  display: none;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 1rem;
   
   background: rgba(0,0,0,0.92);
-  z-index: 1000;
+  z-index: 9999;
   overflow-y: auto;
 
   opacity: 0;
@@ -355,12 +357,16 @@ h1 {
   transition: opacity 0.3s ease;
 }
 #lightbox.show {
+    display: flex;
   opacity: 1;
   pointer-events: auto;         /* enable clicks when visible */
 }
 
 /* Container */
 .lightbox-content {
+    position: relative;
+    overflow: hidden;
+    touch-action: none;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -373,6 +379,9 @@ h1 {
 /* Media */
 #lightbox-media img,
 #lightbox-media video {
+    user-select: none;
+    touch-action: none;
+    transition: transform 0.1s ease-out;
   max-width: 90vw;
   max-height: 75vh;   
   object-fit: contain;

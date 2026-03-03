@@ -1,88 +1,64 @@
-// ===============================
-// LIGHTBOX JS: DESKTOP + TOUCH
-// ===============================
-
 let thumbs = [];
 let currentIndex = -1;
-
-// Zoom & Drag
-let scale = 1, translateX = 0, translateY = 0;
-let isPinching = false, isDraggingImage = false;
-let startDistance = 0, startScale = 1;
-let dragStartX = 0, dragStartY = 0;
-
-// Swipe
-let touchStartX = 0, touchEndX = 0;
-let isSwiping = false;
-
-// Lightbox state
 let lightboxOpen = false;
 
+// Touch/zoom state
+let scale = 1, translateX = 0, translateY = 0;
+let startScale = 1, startDistance = 0;
+let dragStartX = 0, dragStartY = 0;
+let isDragging = false;
+let isPinching = false;
+
+// Swipe state
+let swipeStartX = 0, swipeDeltaX = 0;
+let isSwiping = false;
+
 document.addEventListener("DOMContentLoaded", () => {
-
-  thumbs = Array.from(document.querySelectorAll(".thumb"));
-
-  // Inject lightbox if missing
-  if (!document.getElementById("lightbox")) {
-    const html = `
-      <div id="lightbox">
-        <div class="lightbox-content">
-          <div id="lightbox-media"></div>
-          <div id="lightbox-caption"></div>
-          <div id="lightbox-meta"></div>
-        </div>
-        <div class="esc-hint">Esc → close</div>
-      </div>`;
-    document.body.insertAdjacentHTML("beforeend", html);
-  }
-
   const lightbox = document.getElementById("lightbox");
   const content = document.querySelector(".lightbox-content");
   const mediaContainer = document.getElementById("lightbox-media");
 
-  // -------------------------
-  // Helpers
-  // -------------------------
-  function getDistance(touches) {
-    const dx = touches[0].clientX - touches[1].clientX;
-    const dy = touches[0].clientY - touches[1].clientY;
-    return Math.sqrt(dx*dx + dy*dy);
-  }
+  thumbs = Array.from(document.querySelectorAll(".thumb"));
 
-  function updateTransform(img) {
-    img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-  }
+  // ====================
+  // Open / Close Lightbox
+  // ====================
+  window.openLightbox = (thumb) => {
+    const index = thumbs.indexOf(thumb);
+    if (index !== -1) showImage(index);
+  };
 
-  function resetZoom() {
-    scale = 1; translateX = 0; translateY = 0;
-    const img = mediaContainer.querySelector("img");
-    if (img) updateTransform(img);
-  }
+  const closeLightbox = () => {
+    lightboxOpen = false;
+    mediaContainer.innerHTML = "";
+    lightbox.classList.remove("show");
+    resetTransform();
+  };
 
-  function showImage(index) {
+  // ====================
+  // Show Image / Video
+  // ====================
+  const showImage = (index) => {
     if (thumbs.length === 0) return;
     currentIndex = (index + thumbs.length) % thumbs.length;
 
     mediaContainer.innerHTML = "";
-    resetZoom();
-
     const thumb = thumbs[currentIndex];
     const type = thumb.dataset.type || "image";
 
+    let media;
     if (type === "video") {
-      const video = document.createElement("video");
-      video.src = thumb.dataset.video;
-      video.controls = true;
-      video.autoplay = true;
-      video.loop = true;
-      video.playsInline = true;
-      mediaContainer.appendChild(video);
+      media = document.createElement("video");
+      media.src = thumb.dataset.video || thumb.src;
+      media.controls = true;
+      media.autoplay = true;
+      media.loop = true;
+      media.playsInline = true;
     } else {
-      const img = document.createElement("img");
-      img.src = thumb.src;
-      img.style.transition = "transform 0.1s linear";
-      mediaContainer.appendChild(img);
+      media = document.createElement("img");
+      media.src = thumb.src;
     }
+    mediaContainer.appendChild(media);
 
     document.getElementById("lightbox-caption").textContent =
       thumb.closest(".gallery-item").querySelector(".caption")?.textContent || "";
@@ -98,128 +74,124 @@ document.addEventListener("DOMContentLoaded", () => {
         thumb.dataset.note ? `${thumb.dataset.note}` : ""
       ].filter(Boolean).join(" • ");
 
+    resetTransform();
     lightboxOpen = true;
     lightbox.classList.add("show");
-  }
+  };
 
-  function openLightbox(thumb) {
-    const idx = thumbs.indexOf(thumb);
-    if (idx !== -1) showImage(idx);
-  }
+  const resetTransform = () => {
+    scale = 1; translateX = 0; translateY = 0;
+    const img = mediaContainer.querySelector("img, video");
+    if (img) img.style.transform = "translate(0px,0px) scale(1)";
+  };
 
-  function closeLightbox() {
-    lightboxOpen = false;
-    resetZoom();
-    mediaContainer.innerHTML = "";
-    lightbox.classList.remove("show");
-  }
-
-  // -------------------------
-  // Desktop: ESC + Arrow Keys
-  // -------------------------
+  // ====================
+  // Keyboard
+  // ====================
   document.addEventListener("keydown", (e) => {
     if (!lightboxOpen) return;
     if (e.repeat) return;
 
-    if (e.key === "Escape") {
-      e.preventDefault();
-      closeLightbox();
-    } else if (e.key === "ArrowLeft") {
-      e.preventDefault();
-      showImage(currentIndex - 1);
-    } else if (e.key === "ArrowRight") {
-      e.preventDefault();
-      showImage(currentIndex + 1);
+    if (e.key === "Escape") closeLightbox();
+    if (e.key === "ArrowLeft") showImage(currentIndex - 1);
+    if (e.key === "ArrowRight") showImage(currentIndex + 1);
+  });
+
+  // ====================
+  // Pointer Events (swipe + pinch + drag)
+  // ====================
+  content.addEventListener("pointerdown", (e) => {
+    if (!lightboxOpen) return;
+    content.setPointerCapture(e.pointerId);
+
+    const img = mediaContainer.querySelector("img, video");
+    if (!img) return;
+
+    if (e.pointerType === "touch") {
+      if (e.isPrimary && e.pointerId && e.width > 0) {
+        // single touch -> swipe or drag
+        swipeStartX = e.clientX;
+        isSwiping = scale === 1;
+        if (scale > 1) {
+          isDragging = true;
+          dragStartX = e.clientX - translateX;
+          dragStartY = e.clientY - translateY;
+        }
+      }
     }
   });
 
-  // -------------------------
-  // Touch gestures: Swipe + Pinch/Drag
-  // -------------------------
-  lightbox.addEventListener("touchstart", (e) => {
+  content.addEventListener("pointermove", (e) => {
     if (!lightboxOpen) return;
-    const img = mediaContainer.querySelector("img");
+    const img = mediaContainer.querySelector("img, video");
     if (!img) return;
 
-    if (e.touches.length === 2) {
-      isPinching = true;
-      startDistance = getDistance(e.touches);
-      startScale = scale;
-      return;
+    if (e.pointerType === "touch") {
+      if (isDragging) {
+        translateX = e.clientX - dragStartX;
+        translateY = e.clientY - dragStartY;
+        img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+      } else if (isSwiping) {
+        swipeDeltaX = e.clientX - swipeStartX;
+        content.style.transition = "none";
+        content.style.transform = `translateX(${swipeDeltaX}px)`;
+      }
     }
+  });
 
-    if (scale > 1) {
-      isDraggingImage = true;
-      dragStartX = e.touches[0].clientX - translateX;
-      dragStartY = e.touches[0].clientY - translateY;
-      return;
-    }
-
-    // Swipe only if not zoomed
-    touchStartX = e.changedTouches[0].screenX;
-    isSwiping = true;
-    content.style.transition = "none";
-
-  }, { passive: true });
-
-  lightbox.addEventListener("touchmove", (e) => {
-    const img = mediaContainer.querySelector("img");
+  content.addEventListener("pointerup", (e) => {
+    if (!lightboxOpen) return;
+    const img = mediaContainer.querySelector("img, video");
     if (!img) return;
 
-    if (isPinching && e.touches.length === 2) {
-      const newDistance = getDistance(e.touches);
-      scale = Math.min(Math.max(startScale * (newDistance / startDistance), 1), 4);
-      updateTransform(img);
-      return;
-    }
-
-    if (isDraggingImage && scale > 1) {
-      translateX = e.touches[0].clientX - dragStartX;
-      translateY = e.touches[0].clientY - dragStartY;
-      updateTransform(img);
-      return;
-    }
-
-    if (isSwiping && scale === 1) {
-      touchEndX = e.changedTouches[0].screenX;
-      const deltaX = touchEndX - touchStartX;
-      content.style.transform = `translateX(${deltaX}px)`;
-    }
-  }, { passive: true });
-
-  lightbox.addEventListener("touchend", () => {
-    const img = mediaContainer.querySelector("img");
-    if (!img) return;
-
-    if (isPinching) { isPinching = false; return; }
-    if (isDraggingImage) { isDraggingImage = false; return; }
+    if (isDragging) { isDragging = false; return; }
 
     if (isSwiping) {
-      const deltaX = touchEndX - touchStartX;
       const threshold = 70;
-      content.style.transition = "transform 0.25s ease";
+      content.style.transition = "transform 0.3s ease";
 
-      if (deltaX < -threshold) {
+      if (swipeDeltaX < -threshold) {
         content.style.transform = "translateX(-100%)";
-        setTimeout(() => showImage(currentIndex + 1), 200);
-      } else if (deltaX > threshold) {
+        setTimeout(() => showImage(currentIndex + 1), 250);
+      } else if (swipeDeltaX > threshold) {
         content.style.transform = "translateX(100%)";
-        setTimeout(() => showImage(currentIndex - 1), 200);
+        setTimeout(() => showImage(currentIndex - 1), 250);
       } else {
         content.style.transform = "translateX(0)";
       }
+      swipeDeltaX = 0;
       isSwiping = false;
     }
-  }, { passive: true });
-
-  // -------------------------
-  // Bind thumbnail clicks
-  // -------------------------
-  thumbs.forEach(thumb => {
-    thumb.addEventListener("click", (e) => {
-      e.preventDefault();
-      openLightbox(thumb);
-    });
   });
 
+  // Pinch zoom (2-finger)
+  let pointers = {};
+  content.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "touch") pointers[e.pointerId] = e;
+    if (Object.keys(pointers).length === 2) {
+      const ids = Object.keys(pointers);
+      const a = pointers[ids[0]], b = pointers[ids[1]];
+      startDistance = Math.hypot(a.clientX-b.clientX, a.clientY-b.clientY);
+      startScale = scale;
+      isPinching = true;
+    }
+  });
+
+  content.addEventListener("pointermove", (e) => {
+    if (!isPinching) return;
+    if (pointers[e.pointerId]) pointers[e.pointerId] = e;
+    const ids = Object.keys(pointers);
+    if (ids.length === 2) {
+      const a = pointers[ids[0]], b = pointers[ids[1]];
+      const currentDistance = Math.hypot(a.clientX-b.clientX, a.clientY-b.clientY);
+      scale = Math.min(Math.max(startScale * (currentDistance/startDistance), 1), 4);
+      const img = mediaContainer.querySelector("img, video");
+      if (img) img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    }
+  });
+
+  content.addEventListener("pointerup", (e) => {
+    delete pointers[e.pointerId];
+    if (Object.keys(pointers).length < 2) isPinching = false;
+  });
 });
