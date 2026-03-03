@@ -120,85 +120,72 @@ document.addEventListener("DOMContentLoaded", () => {
     else if (e.key === "ArrowRight") showImage(currentIndex + 1);
   });
 
-  // -------------------
-  // Touch gestures
-  // -------------------
-  function getDistance(touches) {
-    const dx = touches[0].clientX - touches[1].clientX;
-    const dy = touches[0].clientY - touches[1].clientY;
-    return Math.sqrt(dx*dx + dy*dy);
+// ------------------ Pinch & Drag Touch Handler ------------------
+let scale = 1;
+let startScale = 1;
+let translateX = 0;
+let translateY = 0;
+let pinchStartDistance = 0;
+let dragStartX = 0;
+let dragStartY = 0;
+let isPinching = false;
+let isDraggingImage = false;
+
+const mediaContainer = document.getElementById("lightbox-media");
+
+function getDistance(touches) {
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function updateTransform(img) {
+  img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+}
+
+// Reset zoom/drag when switching images
+function resetZoom() {
+  scale = 1;
+  translateX = 0;
+  translateY = 0;
+  const img = mediaContainer.querySelector("img");
+  if (img) updateTransform(img);
+}
+
+// Touch start
+mediaContainer.addEventListener("touchstart", (e) => {
+  const img = mediaContainer.querySelector("img");
+  if (!img) return;
+
+  if (e.touches.length === 2) {
+    isPinching = true;
+    pinchStartDistance = getDistance(e.touches);
+    startScale = scale;
+  } else if (e.touches.length === 1 && scale > 1) {
+    isDraggingImage = true;
+    dragStartX = e.touches[0].clientX - translateX;
+    dragStartY = e.touches[0].clientY - translateY;
   }
+}, { passive: true });
 
-  lightbox.addEventListener("touchstart", e => {
-    if (!lightboxOpen) return;
-    const img = mediaContainer.querySelector("img");
-    if (!img) return;
+// Touch move
+mediaContainer.addEventListener("touchmove", (e) => {
+  const img = mediaContainer.querySelector("img");
+  if (!img) return;
 
-    if (e.touches.length === 2) {
-      isPinching = true;
-      startDistance = getDistance(e.touches);
-      startScale = scale;
-      return;
-    }
+  if (isPinching && e.touches.length === 2) {
+    const newDistance = getDistance(e.touches);
+    scale = Math.min(Math.max(startScale * (newDistance / pinchStartDistance), 1), 4);
+    updateTransform(img);
+  } else if (isDraggingImage && scale > 1) {
+    translateX = e.touches[0].clientX - dragStartX;
+    translateY = e.touches[0].clientY - dragStartY;
+    updateTransform(img);
+  }
+}, { passive: true });
 
-    if (scale > 1) {
-      isDraggingImage = true;
-      dragStartX = e.touches[0].clientX - translateX;
-      dragStartY = e.touches[0].clientY - translateY;
-      return;
-    }
-
-    // swipe
-    touchStartX = e.changedTouches[0].screenX;
-    isSwiping = true;
-    content.style.transition = "none";
-  }, { passive: true });
-
-  lightbox.addEventListener("touchmove", e => {
-    const img = mediaContainer.querySelector("img");
-    if (!img) return;
-
-    if (isPinching && e.touches.length === 2) {
-      const newDistance = getDistance(e.touches);
-      scale = Math.min(Math.max(startScale * (newDistance / startDistance), 1), 4);
-      updateTransform();
-      return;
-    }
-
-    if (isDraggingImage && scale > 1) {
-      translateX = e.touches[0].clientX - dragStartX;
-      translateY = e.touches[0].clientY - dragStartY;
-      updateTransform();
-      return;
-    }
-
-    if (isSwiping && scale === 1) {
-      touchEndX = e.changedTouches[0].screenX;
-      const deltaX = touchEndX - touchStartX;
-      content.style.transform = `translateX(${deltaX}px)`;
-    }
-  }, { passive: true });
-
-  lightbox.addEventListener("touchend", e => {
-    if (isPinching) { isPinching = false; return; }
-    if (isDraggingImage) { isDraggingImage = false; return; }
-
-    if (isSwiping) {
-      const deltaX = touchEndX - touchStartX;
-      const threshold = 70;
-      content.style.transition = "transform 0.3s ease";
-
-      if (deltaX < -threshold) {
-        content.style.transform = "translateX(-100%)";
-        setTimeout(() => showImage(currentIndex + 1), 250);
-      } else if (deltaX > threshold) {
-        content.style.transform = "translateX(100%)";
-        setTimeout(() => showImage(currentIndex - 1), 250);
-      } else {
-        content.style.transform = "translateX(0)";
-      }
-      isSwiping = false;
-    }
-  }, { passive: true });
-
+// Touch end
+mediaContainer.addEventListener("touchend", () => {
+  isPinching = false;
+  isDraggingImage = false;
 });
