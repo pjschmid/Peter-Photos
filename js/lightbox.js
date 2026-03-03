@@ -121,71 +121,65 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 // ------------------ Pinch & Drag Touch Handler ------------------
-let scale = 1;
-let startScale = 1;
-let translateX = 0;
-let translateY = 0;
-let pinchStartDistance = 0;
-let dragStartX = 0;
-let dragStartY = 0;
-let isPinching = false;
-let isDraggingImage = false;
+const img = mediaContainer.querySelector("img");
+if (!img) return;
+img.style.touchAction = "none";       // disable default gestures
+img.style.willChange = "transform";   // GPU optimization
 
-const mediaContainer = document.getElementById("lightbox-media");
+let lastScale = 1;
+let lastX = 0;
+let lastY = 0;
+let originX = 0;
+let originY = 0;
 
-function getDistance(touches) {
-  const dx = touches[0].clientX - touches[1].clientX;
-  const dy = touches[0].clientY - touches[1].clientY;
-  return Math.sqrt(dx * dx + dy * dy);
-}
-
-function updateTransform(img) {
-  img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-}
-
-// Reset zoom/drag when switching images
-function resetZoom() {
-  scale = 1;
-  translateX = 0;
-  translateY = 0;
-  const img = mediaContainer.querySelector("img");
-  if (img) updateTransform(img);
-}
-
-// Touch start
 mediaContainer.addEventListener("touchstart", (e) => {
-  const img = mediaContainer.querySelector("img");
-  if (!img) return;
-
   if (e.touches.length === 2) {
     isPinching = true;
-    pinchStartDistance = getDistance(e.touches);
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    pinchStartDistance = Math.sqrt(dx*dx + dy*dy);
     startScale = scale;
+
+    // midpoint
+    originX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    originY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    img.style.transformOrigin = `${originX}px ${originY}px`;
   } else if (e.touches.length === 1 && scale > 1) {
     isDraggingImage = true;
     dragStartX = e.touches[0].clientX - translateX;
     dragStartY = e.touches[0].clientY - translateY;
   }
-}, { passive: true });
+}, { passive: false });
 
-// Touch move
 mediaContainer.addEventListener("touchmove", (e) => {
   const img = mediaContainer.querySelector("img");
   if (!img) return;
+  e.preventDefault(); // important to stop default zoom
 
   if (isPinching && e.touches.length === 2) {
-    const newDistance = getDistance(e.touches);
-    scale = Math.min(Math.max(startScale * (newDistance / pinchStartDistance), 1), 4);
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const distance = Math.sqrt(dx*dx + dy*dy);
+
+    let newScale = startScale * (distance / pinchStartDistance);
+
+    // Smooth interpolation
+    scale += (newScale - scale) * 0.2; 
+    scale = Math.max(1, Math.min(scale, 4));
+
     updateTransform(img);
   } else if (isDraggingImage && scale > 1) {
     translateX = e.touches[0].clientX - dragStartX;
     translateY = e.touches[0].clientY - dragStartY;
     updateTransform(img);
   }
-}, { passive: true });
+}, { passive: false });
 
-// Touch end
-mediaContainer.addEventListener("touchend", () => {
+mediaContainer.addEventListener("touchend", (e) => {
   isPinching = false;
   isDraggingImage = false;
+
+  // Snap final scale gently
+  scale = Math.max(1, Math.min(scale, 4));
 });
+    
