@@ -1,5 +1,5 @@
 // ============================
-// LIGHTBOX.JS - CLEAN VERSION
+// LIGHTBOX.JS - STABLE VERSION
 // ============================
 
 let thumbs = [];
@@ -18,6 +18,7 @@ let lightboxOpen = false;
 
 document.addEventListener("DOMContentLoaded", () => {
 
+  // Grab all thumbnails
   thumbs = Array.from(document.querySelectorAll(".thumb"));
   thumbs.forEach(thumb => {
     thumb.addEventListener("click", (e) => {
@@ -26,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Inject lightbox container if missing
+  // Inject lightbox if missing
   if (!document.getElementById("lightbox")) {
     const html = `
       <div id="lightbox">
@@ -45,13 +46,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const content = lightbox.querySelector(".lightbox-content");
   const mediaContainer = document.getElementById("lightbox-media");
 
-  // ---------------------------
-  // Helpers
-  // ---------------------------
   function resetZoom() {
-    scale = 1;
-    translateX = 0;
-    translateY = 0;
+    scale = 1; translateX = 0; translateY = 0;
     const img = mediaContainer.querySelector("img");
     if (img) img.style.transform = `translate3d(0,0,0) scale(1)`;
   }
@@ -65,8 +61,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function showImage(index) {
     if (thumbs.length === 0) return;
     currentIndex = (index + thumbs.length) % thumbs.length;
-
     mediaContainer.innerHTML = "";
+
     const thumb = thumbs[currentIndex];
     const type = thumb.dataset.type || "image";
 
@@ -89,37 +85,24 @@ document.addEventListener("DOMContentLoaded", () => {
       thumb.closest(".gallery-item").querySelector(".caption")?.textContent || "";
 
     document.getElementById("lightbox-meta").textContent =
-      [
-        thumb.dataset.camera,
-        thumb.dataset.lens,
-        thumb.dataset.focal,
-        thumb.dataset.aperture ? `ƒ/${thumb.dataset.aperture}` : "",
-        thumb.dataset.shutter ? `${thumb.dataset.shutter} s` : "",
-        thumb.dataset.iso ? `ISO ${thumb.dataset.iso}` : "",
-        thumb.dataset.note ? `${thumb.dataset.note}` : ""
-      ].filter(Boolean).join(" • ");
+      [thumb.dataset.camera, thumb.dataset.lens, thumb.dataset.focal,
+       thumb.dataset.aperture ? `ƒ/${thumb.dataset.aperture}` : "",
+       thumb.dataset.shutter ? `${thumb.dataset.shutter} s` : "",
+       thumb.dataset.iso ? `ISO ${thumb.dataset.iso}` : "",
+       thumb.dataset.note ? `${thumb.dataset.note}` : ""].filter(Boolean).join(" • ");
 
     resetZoom();
     lightboxOpen = true;
     lightbox.classList.add("show");
   }
 
-  function openLightbox(thumb) {
-    const index = thumbs.indexOf(thumb);
-    if (index !== -1) showImage(index);
-  }
+  function openLightbox(thumb) { showImage(thumbs.indexOf(thumb)); }
+  function closeLightbox() { lightboxOpen = false; resetZoom(); mediaContainer.innerHTML = ""; lightbox.classList.remove("show"); }
 
-  function closeLightbox() {
-    lightboxOpen = false;
-    resetZoom();
-    mediaContainer.innerHTML = "";
-    lightbox.classList.remove("show");
-  }
-
-  // ---------------------------
-  // Keyboard
-  // ---------------------------
-  document.addEventListener("keydown", (e) => {
+  // -----------------------
+  // Keyboard navigation
+  // -----------------------
+  window.addEventListener("keydown", (e) => {
     if (!lightboxOpen) return;
     if (e.repeat) return;
 
@@ -128,9 +111,9 @@ document.addEventListener("DOMContentLoaded", () => {
     else if (e.key === "ArrowRight") showImage(currentIndex + 1);
   });
 
-  // ---------------------------
+  // -----------------------
   // Touch gestures
-  // ---------------------------
+  // -----------------------
   lightbox.addEventListener("touchstart", (e) => {
     if (!lightboxOpen) return;
     const img = mediaContainer.querySelector("img");
@@ -187,4 +170,3 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 });
-
