@@ -65,3 +65,71 @@ document.addEventListener("keydown", (e) => {
 
   if (e.key === "Escape") closeLightbox();
 });
+
+
+// IPAD PART
+
+lightbox.addEventListener("touchstart", (e) => {
+  if (!lightboxOpen) return;
+
+  const img = mediaContainer.querySelector("img");
+  if (!img) return;
+
+  if (e.touches.length === 2) {
+    // Pinch start
+    isPinching = true;
+    startDistance = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    startScale = scale;
+  } else if (scale > 1 && e.touches.length === 1) {
+    // Drag image
+    isDraggingImage = true;
+    dragStartX = e.touches[0].clientX - translateX;
+    dragStartY = e.touches[0].clientY - translateY;
+  } else if (scale === 1 && e.touches.length === 1) {
+    // Swipe
+    isSwiping = true;
+    touchStartX = e.touches[0].clientX;
+    content.style.transition = "none";
+  }
+});
+
+lightbox.addEventListener("touchmove", (e) => {
+  const img = mediaContainer.querySelector("img");
+  if (!img) return;
+
+  if (isPinching && e.touches.length === 2) {
+    const newDistance = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    scale = Math.min(Math.max(startScale * (newDistance / startDistance), 1), 4);
+    img.style.transform = `translate3d(${translateX}px,${translateY}px,0) scale(${scale})`;
+  } else if (isDraggingImage) {
+    translateX = e.touches[0].clientX - dragStartX;
+    translateY = e.touches[0].clientY - dragStartY;
+    img.style.transform = `translate3d(${translateX}px,${translateY}px,0) scale(${scale})`;
+  } else if (isSwiping) {
+    const deltaX = e.touches[0].clientX - touchStartX;
+    content.style.transform = `translate3d(${deltaX}px,0,0)`;
+  }
+});
+
+lightbox.addEventListener("touchend", (e) => {
+  if (isPinching) { isPinching = false; return; }
+  if (isDraggingImage) { isDraggingImage = false; return; }
+
+  if (isSwiping) {
+    const deltaX = e.changedTouches[0].clientX - touchStartX;
+    const threshold = 70;
+    content.style.transition = "transform 0.3s ease";
+
+    if (deltaX < -threshold) showImage(currentIndex + 1);
+    else if (deltaX > threshold) showImage(currentIndex - 1);
+    else content.style.transform = "translate3d(0,0,0)";
+
+    isSwiping = false;
+  }
+});
