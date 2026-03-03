@@ -1,11 +1,16 @@
+// ============================
+// UNIVERSAL LIGHTBOX
+// ============================
+
 let thumbs = [];
 let currentIndex = -1;
 
 // Zoom / Drag
 let scale = 1, translateX = 0, translateY = 0;
-let startScale = 1, startDistance = 0;
-let dragStartX = 0, dragStartY = 0;
 let isPinching = false, isDraggingImage = false;
+let dragStartX = 0, dragStartY = 0;
+let pinchStartDistance = 0, startScale = 1;
+let originX = 0, originY = 0;
 
 // Swipe
 let touchStartX = 0, touchEndX = 0;
@@ -18,15 +23,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   thumbs = Array.from(document.querySelectorAll(".thumb"));
   thumbs.forEach(thumb => {
-    thumb.addEventListener("click", e => {
+    thumb.addEventListener("click", (e) => {
       e.preventDefault();
-      e.stopPropagation();
       openLightbox(thumb);
     });
   });
 
+  // Inject lightbox HTML
   if (!document.getElementById("lightbox")) {
-    const lightboxHTML = `
+    const html = `
       <div id="lightbox">
         <div class="lightbox-content">
           <div id="lightbox-media"></div>
@@ -36,23 +41,24 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="esc-hint">Esc → close</div>
       </div>
     `;
-    document.body.insertAdjacentHTML("beforeend", lightboxHTML);
+    document.body.insertAdjacentHTML("beforeend", html);
   }
 
   const lightbox = document.getElementById("lightbox");
   const content = document.querySelector(".lightbox-content");
   const mediaContainer = document.getElementById("lightbox-media");
 
+  // ----------------
+  // HELPER FUNCTIONS
+  // ----------------
+  function updateTransform(img) {
+    img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+  }
+
   function resetZoom() {
     scale = 1; translateX = 0; translateY = 0;
     const img = mediaContainer.querySelector("img");
-    if (img) img.style.transform = `translate(0px,0px) scale(1)`;
-  }
-
-  function updateTransform() {
-    const img = mediaContainer.querySelector("img");
-    if (!img) return;
-    img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    if (img) updateTransform(img);
   }
 
   function showImage(index) {
@@ -60,6 +66,8 @@ document.addEventListener("DOMContentLoaded", () => {
     currentIndex = (index + thumbs.length) % thumbs.length;
 
     mediaContainer.innerHTML = "";
+    resetZoom();
+
     const thumb = thumbs[currentIndex];
     const type = thumb.dataset.type || "image";
 
@@ -74,6 +82,9 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       const img = document.createElement("img");
       img.src = thumb.src;
+      img.style.transition = "transform 0.1s ease";
+      img.style.touchAction = "none";
+      img.style.willChange = "transform";
       mediaContainer.appendChild(img);
     }
 
@@ -91,7 +102,6 @@ document.addEventListener("DOMContentLoaded", () => {
         thumb.dataset.note ? `${thumb.dataset.note}` : ""
       ].filter(Boolean).join(" • ");
 
-    resetZoom();
     lightboxOpen = true;
     lightbox.classList.add("show");
   }
@@ -108,78 +118,102 @@ document.addEventListener("DOMContentLoaded", () => {
     lightbox.classList.remove("show");
   }
 
-  // -------------------
-  // Keyboard
-  // -------------------
-  document.addEventListener("keydown", e => {
+  // ----------------
+  // KEYBOARD
+  // ----------------
+  document.addEventListener("keydown", (e) => {
     if (!lightboxOpen) return;
     if (e.repeat) return;
 
     if (e.key === "Escape") closeLightbox();
-    else if (e.key === "ArrowLeft") showImage(currentIndex - 1);
-    else if (e.key === "ArrowRight") showImage(currentIndex + 1);
+    if (e.key === "ArrowLeft") showImage(currentIndex - 1);
+    if (e.key === "ArrowRight") showImage(currentIndex + 1);
   });
 
-// ------------------ Pinch & Drag Touch Handler ------------------
-const img = mediaContainer.querySelector("img");
-if (!img) return;
-img.style.touchAction = "none";       // disable default gestures
-img.style.willChange = "transform";   // GPU optimization
+  // ----------------
+  // TOUCH / SWIPE / PINCH
+  // ----------------
+  mediaContainer.addEventListener("touchstart", (e) => {
+    if (!lightboxOpen) return;
+    const img = mediaContainer.querySelector("img");
+    if (!img) return;
 
-let lastScale = 1;
-let lastX = 0;
-let lastY = 0;
-let originX = 0;
-let originY = 0;
+    if (e.touches.length === 2) {
+      isPinching = true;
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      pinchStartDistance = Math.sqrt(dx*dx + dy*dy);
+      startScale = scale;
 
-mediaContainer.addEventListener("touchstart", (e) => {
-  if (e.touches.length === 2) {
-    isPinching = true;
-    const dx = e.touches[0].clientX - e.touches[1].clientX;
-    const dy = e.touches[0].clientY - e.touches[1].clientY;
-    pinchStartDistance = Math.sqrt(dx*dx + dy*dy);
-    startScale = scale;
+      originX = (e.touches[0].clientX + e.touches[1].clientX)/2;
+      originY = (e.touches[0].clientY + e.touches[1].clientY)/2;
+      img.style.transformOrigin = `${originX}px ${originY}px`;
+      return;
+    }
 
-    // midpoint
-    originX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-    originY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-    img.style.transformOrigin = `${originX}px ${originY}px`;
-  } else if (e.touches.length === 1 && scale > 1) {
-    isDraggingImage = true;
-    dragStartX = e.touches[0].clientX - translateX;
-    dragStartY = e.touches[0].clientY - translateY;
-  }
-}, { passive: false });
+    if (scale > 1) {
+      isDraggingImage = true;
+      dragStartX = e.touches[0].clientX - translateX;
+      dragStartY = e.touches[0].clientY - translateY;
+      return;
+    }
 
-mediaContainer.addEventListener("touchmove", (e) => {
-  const img = mediaContainer.querySelector("img");
-  if (!img) return;
-  e.preventDefault(); // important to stop default zoom
+    // swipe start
+    touchStartX = e.touches[0].clientX;
+    isSwiping = true;
+    content.style.transition = "none";
+  }, { passive: false });
 
-  if (isPinching && e.touches.length === 2) {
-    const dx = e.touches[0].clientX - e.touches[1].clientX;
-    const dy = e.touches[0].clientY - e.touches[1].clientY;
-    const distance = Math.sqrt(dx*dx + dy*dy);
+  mediaContainer.addEventListener("touchmove", (e) => {
+    if (!lightboxOpen) return;
+    const img = mediaContainer.querySelector("img");
+    if (!img) return;
+    e.preventDefault();
 
-    let newScale = startScale * (distance / pinchStartDistance);
+    if (isPinching && e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      let distance = Math.sqrt(dx*dx + dy*dy);
+      let newScale = startScale * (distance / pinchStartDistance);
+      scale += (newScale - scale) * 0.2;
+      scale = Math.max(1, Math.min(scale, 4));
+      updateTransform(img);
+      return;
+    }
 
-    // Smooth interpolation
-    scale += (newScale - scale) * 0.2; 
-    scale = Math.max(1, Math.min(scale, 4));
+    if (isDraggingImage && scale > 1) {
+      translateX = e.touches[0].clientX - dragStartX;
+      translateY = e.touches[0].clientY - dragStartY;
+      updateTransform(img);
+      return;
+    }
 
-    updateTransform(img);
-  } else if (isDraggingImage && scale > 1) {
-    translateX = e.touches[0].clientX - dragStartX;
-    translateY = e.touches[0].clientY - dragStartY;
-    updateTransform(img);
-  }
-}, { passive: false });
+    if (isSwiping && scale === 1) {
+      touchEndX = e.touches[0].clientX;
+      const deltaX = touchEndX - touchStartX;
+      content.style.transform = `translateX(${deltaX}px)`;
+    }
+  }, { passive: false });
 
-mediaContainer.addEventListener("touchend", (e) => {
-  isPinching = false;
-  isDraggingImage = false;
+  mediaContainer.addEventListener("touchend", (e) => {
+    if (isPinching) { isPinching = false; return; }
+    if (isDraggingImage) { isDraggingImage = false; return; }
 
-  // Snap final scale gently
-  scale = Math.max(1, Math.min(scale, 4));
+    if (isSwiping) {
+      const deltaX = touchEndX - touchStartX;
+      const threshold = 70;
+      content.style.transition = "transform 0.3s ease";
+      if (deltaX < -threshold) {
+        content.style.transform = "translateX(-100%)";
+        setTimeout(() => showImage(currentIndex+1), 250);
+      } else if (deltaX > threshold) {
+        content.style.transform = "translateX(100%)";
+        setTimeout(() => showImage(currentIndex-1), 250);
+      } else {
+        content.style.transform = "translateX(0)";
+      }
+      isSwiping = false;
+    }
+  }, { passive: false });
+
 });
-    
