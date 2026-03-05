@@ -334,38 +334,35 @@ h1 {
 /* Lightbox overlay */
 
 #lightbox {
-    position: fixed;
-    top: 0;
-    left: 0;
+  position: fixed;
+  inset: 0;
 
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
   
-    background: rgba(0,0,0,0.92);
-    z-index: 9999;
-    overflow-y: auto;
+  background: rgba(0,0,0,0.92);
+  z-index: 1000;
+  overflow-y: auto;
 
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
 }
 #lightbox.show {
-    display: flex; 
-    opacity: 1;
-    pointer-events: auto;         /* enable clicks when visible */
+  opacity: 1;
+  pointer-events: auto;         /* enable clicks when visible */
 }
 
 /* Container */
 .lightbox-content {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    max-width: 95%;
-    max-height: 95vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 95%;
+  max-height: 95vh;
 }
 
 /* Media */
@@ -422,7 +419,7 @@ h1 {
 
 /* ESC hint */
 .esc-hint {
-  position: fixed;
+  position: absolute;
   top: 2rem;
   left: 2rem;
   font-size: 0.75rem;
