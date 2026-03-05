@@ -1,31 +1,41 @@
 // lightbox.js
-
 let thumbs = [];
 let currentIndex = -1;
 
-// Automatically inject the lightbox div once per page
 document.addEventListener("DOMContentLoaded", () => {
-  // Populate thumbs array
+
   thumbs = Array.from(document.querySelectorAll(".thumb"));
 
-  // Insert lightbox HTML if it doesn't exist
+  // attach click handler automatically
+  thumbs.forEach((thumb, index) => {
+    thumb.addEventListener("click", () => {
+      openLightbox(index);
+    });
+  });
+
+  // create lightbox if not present
   if (!document.getElementById("lightbox")) {
-    const lightboxHTML = `
-      <div id="lightbox" onclick="closeLightbox()">
-        <div class="lightbox-content" onclick="event.stopPropagation()">
+    const html = `
+      <div id="lightbox">
+        <div class="lightbox-content">
           <div id="lightbox-media"></div>
           <div id="lightbox-caption"></div>
           <div id="lightbox-meta"></div>
         </div>
-        <div class="esc-hint">Esc → close</div>
       </div>
     `;
-    document.body.insertAdjacentHTML("beforeend", lightboxHTML);
+    document.body.insertAdjacentHTML("beforeend", html);
+
+    document.getElementById("lightbox").addEventListener("click", closeLightbox);
   }
+
 });
 
-// Open lightbox for a clicked thumbnail
-function openLightbox(thumb) {
+function openLightbox(index) {
+
+  currentIndex = index;
+  const thumb = thumbs[index];
+
   const lightbox = document.getElementById("lightbox");
   const mediaContainer = document.getElementById("lightbox-media");
   const caption = document.getElementById("lightbox-caption");
@@ -33,23 +43,14 @@ function openLightbox(thumb) {
 
   mediaContainer.innerHTML = "";
 
-  const type = thumb.dataset.type || "image";
-  if (type === "video") {
-    const video = document.createElement("video");
-    video.src = thumb.dataset.video;
-    video.controls = true;
-    video.autoplay = true;
-    video.loop = true;
-    video.playsInline = true;
-    mediaContainer.appendChild(video);
-  } else {
-    const img = document.createElement("img");
-    img.src = thumb.src;
-    mediaContainer.appendChild(img);
-  }
+  const img = document.createElement("img");
+  img.src = thumb.src;
+  mediaContainer.appendChild(img);
 
-  caption.textContent = thumb.closest(".gallery-item")
-    .querySelector(".caption")?.textContent || "";
+  caption.textContent =
+    thumb.closest(".gallery-item")
+      ?.querySelector(".caption")
+      ?.textContent || "";
 
   meta.textContent = [
     thumb.dataset.camera,
@@ -57,15 +58,12 @@ function openLightbox(thumb) {
     thumb.dataset.focal,
     thumb.dataset.aperture ? `ƒ/${thumb.dataset.aperture}` : "",
     thumb.dataset.shutter ? `${thumb.dataset.shutter} s` : "",
-    thumb.dataset.iso ? `ISO ${thumb.dataset.iso}` : "",
-    thumb.dataset.note ? `${thumb.dataset.note}` : ""
+    thumb.dataset.iso ? `ISO ${thumb.dataset.iso}` : ""
   ].filter(Boolean).join(" • ");
-
-  // Update current index for navigation
-  currentIndex = thumbs.indexOf(thumb);
 
   lightbox.classList.add("show");
 }
+
 
 // Close lightbox
 function closeLightbox() {
