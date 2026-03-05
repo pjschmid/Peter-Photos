@@ -75,12 +75,41 @@ function closeLightbox() {
   lightbox.classList.remove("show");
 }
 
-// Navigate by index
 function showImage(index) {
+
+  const lightbox = document.getElementById("lightbox");
+  const mediaContainer = document.getElementById("lightbox-media");
+  const caption = document.getElementById("lightbox-caption");
+  const meta = document.getElementById("lightbox-meta");
+
   if (thumbs.length === 0) return;
+
   if (index < 0) index = thumbs.length - 1;
   if (index >= thumbs.length) index = 0;
-  openLightbox(thumbs[index]);
+
+  const thumb = thumbs[index];
+  currentIndex = index;
+
+  mediaContainer.innerHTML = "";
+
+  const img = document.createElement("img");
+  img.src = thumb.src;
+  mediaContainer.appendChild(img);
+
+  caption.textContent = thumb.closest(".gallery-item")
+      .querySelector(".caption")?.textContent || "";
+
+  meta.textContent = [
+    thumb.dataset.camera,
+    thumb.dataset.lens,
+    thumb.dataset.focal,
+    thumb.dataset.aperture ? `ƒ/${thumb.dataset.aperture}` : "",
+    thumb.dataset.shutter ? `${thumb.dataset.shutter} s` : "",
+    thumb.dataset.iso ? `ISO ${thumb.dataset.iso}` : "",
+    thumb.dataset.note ? `${thumb.dataset.note}` : ""
+  ].filter(Boolean).join(" • ");
+
+  lightbox.classList.add("show");
 }
 
 // Keyboard navigation
