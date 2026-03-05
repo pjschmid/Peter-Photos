@@ -334,10 +334,10 @@ h1 {
 /* Lightbox overlay */
 
 #lightbox {
-    inset: 0;
-    width: 100%; height: 100%
+  position: fixed;
+  inset: 0;
 
-  display: none;
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -363,8 +363,6 @@ h1 {
   align-items: center;
   max-width: 95%;
   max-height: 95vh;
-  will-change: transform, opacity;
-  transition: transform 0.35s cubic-bezier(0.22,.61,.36,1), opacity 0.25s ease;
 }
 
 /* Media */
@@ -379,8 +377,6 @@ h1 {
   box-shadow: 0 0 8px rgba(255,255,255,0.3);   /* soft glowing outline */
   
 }
-*/
-		
 
 #lightbox-caption {
   margin-top: 0.5rem;
