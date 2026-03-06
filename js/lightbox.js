@@ -1,7 +1,7 @@
 let thumbs = [];
 let currentIndex = -1;
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function () {
 
   thumbs = Array.from(document.querySelectorAll(".thumb"));
 
@@ -9,14 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     thumb.addEventListener("click", () => openLightbox(index));
   });
 
-  const lightbox = document.getElementById("lightbox");
-
-  lightbox.addEventListener("click", (e) => {
-    if (e.target === lightbox) closeLightbox();
-  });
-
 });
-
 
 function openLightbox(index) {
 
@@ -33,27 +26,25 @@ function openLightbox(index) {
 
   const img = document.createElement("img");
   img.src = thumb.src;
-
   media.appendChild(img);
 
-  caption.textContent =
-    thumb.closest(".gallery-item")
-      ?.querySelector(".caption")
-      ?.textContent || "";
+  const cap = thumb.closest(".gallery-item")
+      .querySelector(".caption");
+
+  caption.textContent = cap ? cap.textContent : "";
 
   meta.textContent = [
     thumb.dataset.camera,
     thumb.dataset.lens,
     thumb.dataset.focal,
-    thumb.dataset.aperture ? `ƒ/${thumb.dataset.aperture}` : "",
-    thumb.dataset.shutter ? `${thumb.dataset.shutter} s` : "",
-    thumb.dataset.iso ? `ISO ${thumb.dataset.iso}` : ""
+    thumb.dataset.aperture ? "ƒ/" + thumb.dataset.aperture : "",
+    thumb.dataset.shutter,
+    thumb.dataset.iso ? "ISO " + thumb.dataset.iso : "",
+    thumb.dataset.note
   ].filter(Boolean).join(" • ");
 
   lightbox.classList.add("show");
-
 }
-
 
 function closeLightbox() {
 
@@ -65,35 +56,28 @@ function closeLightbox() {
 
 }
 
-
-function showImage(index) {
-
-  if (index < 0) index = thumbs.length - 1;
-  if (index >= thumbs.length) index = 0;
-
-  openLightbox(index);
-
+function nextImage() {
+  currentIndex++;
+  if (currentIndex >= thumbs.length) currentIndex = 0;
+  openLightbox(currentIndex);
 }
 
+function prevImage() {
+  currentIndex--;
+  if (currentIndex < 0) currentIndex = thumbs.length - 1;
+  openLightbox(currentIndex);
+}
 
-document.addEventListener("keydown", (e) => {
+document.addEventListener("keydown", function (e) {
 
   const lightbox = document.getElementById("lightbox");
-
   if (!lightbox.classList.contains("show")) return;
 
-  if (e.key === "ArrowLeft") {
-    e.preventDefault();
-    showImage(currentIndex - 1);
-  }
-
-  if (e.key === "ArrowRight") {
-    e.preventDefault();
-    showImage(currentIndex + 1);
-  }
-
-  if (e.key === "Escape") {
-    closeLightbox();
-  }
+  if (e.key === "ArrowRight") nextImage();
+  if (e.key === "ArrowLeft") prevImage();
+  if (e.key === "Escape") closeLightbox();
 
 });
+
+document.getElementById("lightbox").addEventListener("click", closeLightbox);
+
