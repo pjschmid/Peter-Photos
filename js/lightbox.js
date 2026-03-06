@@ -24,7 +24,14 @@ function openLightbox(index) {
   const caption = document.getElementById("lightbox-caption");
   const meta = document.getElementById("lightbox-meta");
 
-    media.innerHTML = "";
+  const oldVideo = media.querySelector("video");
+  if (oldVideo) {
+    oldVideo.pause();
+    oldVideo.currentTime = 0;
+  }
+
+  media.innerHTML = "";
+    
 
     const type = thumb.dataset.type || "image";
 
@@ -68,6 +75,12 @@ function closeLightbox() {
 
   const lightbox = document.getElementById("lightbox");
   const media = document.getElementById("lightbox-media");
+
+  const video = media.querySelector("video");
+  if (video) {
+    video.pause();
+    video.currentTime = 0;
+  }
 
   media.innerHTML = "";
   lightbox.classList.remove("show");
