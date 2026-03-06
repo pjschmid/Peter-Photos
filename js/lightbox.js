@@ -9,6 +9,8 @@ document.addEventListener("DOMContentLoaded", function () {
     thumb.addEventListener("click", () => openLightbox(index));
   });
 
+  document.getElementById("lightbox").addEventListener("click", closeLightbox);
+    
 });
 
 function openLightbox(index) {
@@ -79,5 +81,4 @@ document.addEventListener("keydown", function (e) {
 
 });
 
-document.getElementById("lightbox").addEventListener("click", closeLightbox);
 
