@@ -111,3 +111,39 @@ document.addEventListener("keydown", function (e) {
 });
 
 
+// -----------------------------
+// Swipe navigation (mobile)
+// -----------------------------
+
+let touchStartX = 0;
+let touchEndX = 0;
+
+const swipeThreshold = 50; // minimum pixels to count as swipe
+
+const lightbox = document.getElementById("lightbox");
+
+lightbox.addEventListener("touchstart", function(e) {
+
+  if (!lightbox.classList.contains("show")) return;
+
+  touchStartX = e.changedTouches[0].screenX;
+
+}, { passive: true });
+
+lightbox.addEventListener("touchend", function(e) {
+
+  if (!lightbox.classList.contains("show")) return;
+
+  touchEndX = e.changedTouches[0].screenX;
+
+  const delta = touchEndX - touchStartX;
+
+  if (Math.abs(delta) < swipeThreshold) return;
+
+  if (delta < 0) {
+    nextImage();   // swipe left → next image
+  } else {
+    prevImage();   // swipe right → previous image
+  }
+
+}, { passive: true });
