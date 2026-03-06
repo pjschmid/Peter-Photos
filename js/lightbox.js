@@ -24,12 +24,28 @@ function openLightbox(index) {
   const caption = document.getElementById("lightbox-caption");
   const meta = document.getElementById("lightbox-meta");
 
-  media.innerHTML = "";
+    media.innerHTML = "";
 
-  const img = document.createElement("img");
-  img.src = thumb.src;
-  media.appendChild(img);
+    const type = thumb.dataset.type || "image";
 
+    if (type === "video") {
+
+	const video = document.createElement("video");
+	video.src = thumb.dataset.video;
+	video.controls = true;
+	video.autoplay = true;
+	video.loop = true;
+	video.playsInline = true;
+	
+	media.appendChild(video);
+
+    } else {
+
+	const img = document.createElement("img");
+	img.src = thumb.src;
+	media.appendChild(img);
+}
+    
   const cap = thumb.closest(".gallery-item")
       .querySelector(".caption");
 
