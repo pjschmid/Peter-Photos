@@ -433,6 +433,23 @@ h1 {
   transition: opacity 0.25s ease;
   pointer-events: none;
 }
+#swipe-hint {
+  position: absolute;
+  bottom: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #aaa;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+
+#swipe-hint.show {
+  opacity: 1;
+}
+
 /* show only on hover */
 #lightbox:hover .esc-hint {
   opacity: 1;
