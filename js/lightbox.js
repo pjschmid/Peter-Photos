@@ -50,6 +50,17 @@ function openLightbox(index) {
 
 	const img = document.createElement("img");
 	img.src = thumb.src;
+	const full = thumb.dataset.full;
+
+	if (full) {
+	    const hiRes = new Image();
+	    hiRes.src = full;
+
+	    hiRes.onload = () => {
+		img.src = full;
+	    };
+	}
+	
 	media.appendChild(img);
 }
     
