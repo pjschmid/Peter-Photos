@@ -365,6 +365,24 @@ h1 {
   max-height: 95vh;
 }
 
+#lightbox-media {
+  cursor: default;
+}
+
+#lightbox-media img {
+  cursor: default;
+}
+
+#lightbox-media img {
+  max-width: 92vw;
+  max-height: 92vh;
+  transition: filter 0.35s ease;
+}
+
+.lb-blur {
+  filter: blur(12px);
+}
+
 /* Media */
 #lightbox-media img,
 #lightbox-media video {
