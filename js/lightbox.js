@@ -9,9 +9,74 @@ document.addEventListener("DOMContentLoaded", function () {
     thumb.addEventListener("click", () => openLightbox(index));
   });
 
-  document.getElementById("lightbox").addEventListener("click", closeLightbox);
-    
+  const lightbox = document.getElementById("lightbox");
+
+  const media = document.getElementById("lightbox-media");
+
+media.addEventListener("mousemove", function(e) {
+
+  const img = media.querySelector("img");
+  if (!img) return;
+
+  const rect = img.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+
+  if (x < rect.width / 2) {
+    img.style.cursor = "w-resize";
+  } else {
+    img.style.cursor = "e-resize";
+  }
+
 });
+
+  lightbox.addEventListener("click", function(e) {
+
+  const media = document.getElementById("lightbox-media");
+
+  // if clicking outside the image/video → close
+  if (!media.contains(e.target)) {
+    closeLightbox();
+    return;
+  }
+
+  // navigation only for images
+  const rect = media.getBoundingClientRect();
+  const clickX = e.clientX - rect.left;
+
+  if (clickX < rect.width / 2) {
+    prevImage();
+  } else {
+    nextImage();
+  }
+
+});
+    
+
+  // Swipe support
+  let touchStartX = 0;
+  let touchEndX = 0;
+  const swipeThreshold = 50;
+
+  lightbox.addEventListener("touchstart", function(e) {
+    if (!lightbox.classList.contains("show")) return;
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+
+  lightbox.addEventListener("touchend", function(e) {
+    if (!lightbox.classList.contains("show")) return;
+
+    touchEndX = e.changedTouches[0].screenX;
+    const delta = touchEndX - touchStartX;
+
+    if (Math.abs(delta) < swipeThreshold) return;
+
+    if (delta < 0) nextImage();
+    else prevImage();
+
+  }, { passive: true });
+
+});
+
 
 function openLightbox(index) {
 
@@ -30,42 +95,65 @@ function openLightbox(index) {
     oldVideo.currentTime = 0;
   }
 
-  media.innerHTML = "";
-    
+    let img = media.querySelector("img");
+    let video = media.querySelector("video");
 
     const type = thumb.dataset.type || "image";
 
     if (type === "video") {
 
-	const video = document.createElement("video");
+	// remove existing image when switching to video
+	if (img) {
+	    img.remove();
+	    img = null;
+	}
+
+	// reuse existing video if possible
+	if (!video) {
+	    video = document.createElement("video");
+	    media.appendChild(video);
+	}
+
 	video.src = thumb.dataset.video;
 	video.controls = true;
 	video.autoplay = true;
 	video.loop = true;
 	video.playsInline = true;
-	
-	media.appendChild(video);
 
     } else {
 
-	const img = document.createElement("img");
-	img.src = thumb.src;
-	const full = thumb.dataset.full;
 
+	if (video) media.innerHTML = "";   // remove video if switching
+	
+	if (!img) {
+	    img = document.createElement("img");
+	    media.appendChild(img);
+	}
+	    
+	img.src = thumb.src;
+	
+	img.classList.add("lb-blur");
+	
+	const full = thumb.dataset.full;
+	
 	if (full) {
+	    
 	    const hiRes = new Image();
 	    hiRes.src = full;
-
+	    
 	    hiRes.onload = () => {
 		img.src = full;
+		img.classList.remove("lb-blur");
 	    };
+	    
+	} else {
+	    img.classList.remove("lb-blur");
 	}
-	
-	media.appendChild(img);
-}
-    
+    }    
+      
+
   const cap = thumb.closest(".gallery-item")
-      .querySelector(".caption");
+    .querySelector(".caption");
 
   caption.textContent = cap ? cap.textContent : "";
 
@@ -79,20 +167,25 @@ function openLightbox(index) {
     thumb.dataset.note
   ].filter(Boolean).join(" • ");
 
-    lightbox.classList.add("show");
+  lightbox.classList.add("show");
 
-    // show swipe hint once
-    if (!window.swipeHintShown) {
-	const hint = document.getElementById("swipe-hint");
-	hint.classList.add("show");
+  preloadNeighbors(index);
 
-	setTimeout(() => {
-	    hint.classList.remove("show");
-	}, 2000);
+  if (!window.swipeHintShown) {
+    const hint = document.getElementById("swipe-hint");
+    if (hint) {
+      hint.classList.add("show");
 
-	window.swipeHintShown = true;
-    }    
+      setTimeout(() => {
+        hint.classList.remove("show");
+      }, 2000);
+    }
+
+    window.swipeHintShown = true;
+  }
+
 }
+
 
 function closeLightbox() {
 
@@ -110,17 +203,20 @@ function closeLightbox() {
 
 }
 
+
 function nextImage() {
   currentIndex++;
   if (currentIndex >= thumbs.length) currentIndex = 0;
   openLightbox(currentIndex);
 }
 
+
 function prevImage() {
   currentIndex--;
   if (currentIndex < 0) currentIndex = thumbs.length - 1;
   openLightbox(currentIndex);
 }
+
 
 document.addEventListener("keydown", function (e) {
 
@@ -134,39 +230,24 @@ document.addEventListener("keydown", function (e) {
 });
 
 
-// -----------------------------
-// Swipe navigation (mobile)
-// -----------------------------
+function preloadNeighbors(index) {
 
-let touchStartX = 0;
-let touchEndX = 0;
+  const next = (index + 1) % thumbs.length;
+  const prev = (index - 1 + thumbs.length) % thumbs.length;
 
-const swipeThreshold = 50; // minimum pixels to count as swipe
+  [next, prev].forEach(i => {
 
-const lightbox = document.getElementById("lightbox");
+    const t = thumbs[i];
+    const type = t.dataset.type || "image";
 
-lightbox.addEventListener("touchstart", function(e) {
+    if (type === "image") {
 
-  if (!lightbox.classList.contains("show")) return;
+      const src = t.dataset.full || t.src;
+      const img = new Image();
+      img.src = src;
 
-  touchStartX = e.changedTouches[0].screenX;
+    }
 
-}, { passive: true });
+  });
 
-lightbox.addEventListener("touchend", function(e) {
-
-  if (!lightbox.classList.contains("show")) return;
-
-  touchEndX = e.changedTouches[0].screenX;
-
-  const delta = touchEndX - touchStartX;
-
-  if (Math.abs(delta) < swipeThreshold) return;
-
-  if (delta < 0) {
-    nextImage();   // swipe left → next image
-  } else {
-    prevImage();   // swipe right → previous image
-  }
-
-}, { passive: true });
+}
