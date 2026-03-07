@@ -68,7 +68,19 @@ function openLightbox(index) {
     thumb.dataset.note
   ].filter(Boolean).join(" • ");
 
-  lightbox.classList.add("show");
+    lightbox.classList.add("show");
+
+    // show swipe hint once
+    if (!window.swipeHintShown) {
+	const hint = document.getElementById("swipe-hint");
+	hint.classList.add("show");
+
+	setTimeout(() => {
+	    hint.classList.remove("show");
+	}, 2000);
+
+	window.swipeHintShown = true;
+    }    
 }
 
 function closeLightbox() {
