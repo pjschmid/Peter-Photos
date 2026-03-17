@@ -162,7 +162,7 @@ function openLightbox(index) {
     thumb.dataset.lens,
     thumb.dataset.focal,
     thumb.dataset.aperture ? "ƒ/" + thumb.dataset.aperture : "",
-    thumb.dataset.shutter,
+    thumb.dataset.shutter ? thumb.dataset.shutter + "s" : "",
     thumb.dataset.iso ? "ISO " + thumb.dataset.iso : "",
     thumb.dataset.note
   ].filter(Boolean).join(" • ");
