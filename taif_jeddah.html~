@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Taif, Jeddah</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<h1>Taif, Jeddah</h1>
+
+<section class="section-intro">
+  <h2>
+    Getting to know Saudi Arabia ...  
+  </h2>
+</section>
+
+<nav class="main-nav">
+  <a href="index.html">Home</a>
+  <a href="gallery.html">Galleries</a>
+  <a href="travel.html">Travel</a>
+  <a href="botswana.html">Botswana</a>
+  <a href="jordan.html">Jordan</a>
+  <a href="taif_jeddah.html" class="active">Taif, Jeddah</a>
+  <!--
+      <a href="istanbul.html">Istanbul</a>
+      <a href="abudhabi.html">Abu Dhabi</a>
+      <a href="tuscany.html">Tuscany</a>
+      <a href="netherlands.html">Netherlands</a>
+      <a href="paris.html">Paris</a>
+      -->
+</nav>
+
+<div class="gallery">
+
+  <!-- Gallery thumbnails -->
+
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/taif_jeddah/thumbs/Taif_Souk1-thumb.jpg"
+      data-full="images/travel/taif_jeddah/Taif_Souk1.jpg"
+      onclick="openLightbox(this)"
+      data-camera="Nikon Z50ii"
+      data-lens="Nikkor Z DX 50-250mm f/4.5-6.3 VR"
+      data-focal="145mm"
+      data-aperture="6.3"
+      data-iso="110"
+      data-shutter="1/800"
+      data-note=""
+      >
+    <span class="caption">Taif</span>
+  </div>
+
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/taif_jeddah/thumbs/Taif_Souk2-thumb.jpg"
+      data-full="images/travel/taif_jeddah/Taif_Souk2.jpg"
+      onclick="openLightbox(this)"      
+      data-camera="Nikon Z50ii"
+      data-lens="Nikkor Z DX 50-250mm f/4.5-6.3 VR"
+      data-focal="50mm"
+      data-aperture="6.3"
+      data-iso="1400"
+      data-shutter="1/800"
+      data-note=""
+      >
+    <span class="caption">entrance to Petra</span>
+  </div>
+
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/taif_jeddah/thumbs/Taif_BinSalman1-thumb.jpg"
+      data-full="images/travel/taif_jeddah/Taif_BinSalman1.jpg"
+      onclick="openLightbox(this)"      
+      data-camera="Nikon Z8"
+      data-lens="Viltrox AF 16mm f/1.8 Z"
+      data-focal="16mm"
+      data-aperture="6.3"
+      data-iso="200"
+      data-shutter="1/640"
+      data-note=""
+      >
+    <span class="caption">entrance to Petra (Djin blocks)</span>
+  </div>
+  
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/taif_jeddah/thumbs/Taif_BinSalman1-thumb.jpg"
+      data-full="images/travel/taif_jeddah/Taif_BinSalman1.jpg"
+      onclick="openLightbox(this)"      
+      data-camera="Nikon Z8"
+      data-lens="Viltrox AF 16mm f/1.8 Z"
+      data-focal="16mm"
+      data-aperture="6.3"
+      data-iso="200"
+      data-shutter="1/640"
+      data-note=""
+      >
+    <span class="caption">entrance to Petra (Djin blocks)</span>
+  </div>
+  
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/taif_jeddah/thumbs/Taif_BinSalman1-thumb.jpg"
+      data-full="images/travel/taif_jeddah/Taif_BinSalman1.jpg"
+      onclick="openLightbox(this)"      
+      data-camera="Nikon Z8"
+      data-lens="Viltrox AF 16mm f/1.8 Z"
+      data-focal="16mm"
+      data-aperture="6.3"
+      data-iso="200"
+      data-shutter="1/640"
+      data-note=""
+      >
+    <span class="caption">entrance to Petra (Djin blocks)</span>
+  </div>
+  
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/taif_jeddah/thumbs/Taif_BinSalman1-thumb.jpg"
+      data-full="images/travel/taif_jeddah/Taif_BinSalman1.jpg"
+      onclick="openLightbox(this)"      
+      data-camera="Nikon Z8"
+      data-lens="Viltrox AF 16mm f/1.8 Z"
+      data-focal="16mm"
+      data-aperture="6.3"
+      data-iso="200"
+      data-shutter="1/640"
+      data-note=""
+      >
+    <span class="caption">entrance to Petra (Djin blocks)</span>
+  </div>
+  
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/taif_jeddah/thumbs/Taif_BinSalman1-thumb.jpg"
+      data-full="images/travel/taif_jeddah/Taif_BinSalman1.jpg"
+      onclick="openLightbox(this)"      
+      data-camera="Nikon Z8"
+      data-lens="Viltrox AF 16mm f/1.8 Z"
+      data-focal="16mm"
+      data-aperture="6.3"
+      data-iso="200"
+      data-shutter="1/640"
+      data-note=""
+      >
+    <span class="caption">entrance to Petra (Djin blocks)</span>
+  </div>
+  
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/taif_jeddah/thumbs/Taif_BinSalman1-thumb.jpg"
+      data-full="images/travel/taif_jeddah/Taif_BinSalman1.jpg"
+      onclick="openLightbox(this)"      
+      data-camera="Nikon Z8"
+      data-lens="Viltrox AF 16mm f/1.8 Z"
+      data-focal="16mm"
+      data-aperture="6.3"
+      data-iso="200"
+      data-shutter="1/640"
+      data-note=""
+      >
+    <span class="caption">entrance to Petra (Djin blocks)</span>
+  </div>
+  
+</div>
+
+<div id="lightbox">
+  <div class="lightbox-content">
+    <div id="lightbox-media"></div>
+    <div id="lightbox-caption"></div>
+    <div id="lightbox-meta"></div>
+    <div id="swipe-hint">← swipe →</div>
+  </div>
+</div>
+
+<script src="js/lightbox.js"></script>
+</body>
+</html>
+
+
