@@ -147,7 +147,7 @@ function openLightbox(index) {
 	    };
 	    
 	} else {
-	    img.classList.remove("lb-blur");
+	   img.classList.remove("lb-blur");
 	}
     }    
       
