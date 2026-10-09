@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Cadiz</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<h1>Cadiz</h1>
+
+<section class="section-intro">
+  <h2>
+    ... amazing Cadiz ...  
+  </h2>
+</section>
+
+<nav class="main-nav">
+  <a href="index.html" class="nav-home">Home</a>
+  <a href="gallery.html" class="nav-gallery">Galleries</a>
+  <a href="travel.html" class="nav-travel">Travel</a>
+  <span class="nav-break" aria-hidden="true"></span>
+  <a href="botswana.html">Botswana</a>
+  <a href="jordan.html">Jordan</a>
+  <a href="taif_jeddah.html">Taif, Jeddah</a>
+  <a href="tuscany.html">Tuscany</a>
+  <a href="netherlands.html">Netherlands</a>
+  <a href="paris.html">Paris</a>
+  <a href="california.html">California</a>
+  <a href="california.html" class="active">Cadiz</a>
+</nav>
+
+<div class="gallery">
+
+  <!-- Gallery thumbnails -->
+
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/cadiz/thumbs/DSC_0378-thumb.jpg"
+      data-full="images/travel/cadiz/DSC_0378.jpg"
+      onclick="openLightbox(this)"
+      data-camera="Nikon Z8"
+      data-lens="Nikkor Z 24-70mm f/2.8 S II"
+      data-focal="70mm"
+      data-aperture="2.8"
+      data-iso="2000"
+      data-shutter="1/2000"
+      data-note=""
+      >
+    <span class="caption">Cadiz</span>
+  </div>
+
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/cadiz/thumbs/DSC_0410-thumb.jpg"
+      data-full="images/travel/cadiz/DSC_0410.jpg"
+      onclick="openLightbox(this)"
+      data-camera="Nikon Z8"
+      data-lens="Nikkor Z 24-70mm f/2.8 S II"
+      data-focal="24mm"
+      data-aperture="11"
+      data-iso="250"
+      data-shutter="1/160"
+      data-note=""
+      >
+    <span class="caption">Cadiz</span>
+  </div>
+
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/cadiz/thumbs/DSC_0415-thumb.jpg"
+      data-full="images/travel/cadiz/DSC_0415.jpg"
+      onclick="openLightbox(this)"
+      data-camera="Nikon Z8"
+      data-lens="Nikkor Z 24-70mm f/2.8 S II"
+      data-focal="32mm"
+      data-aperture="11"
+      data-iso="220"
+      data-shutter="1/160"
+      data-note=""
+      >
+    <span class="caption">Cadiz</span>
+  </div>
+
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/cadiz/thumbs/DSC_0431-thumb.jpg"
+      data-full="images/travel/cadiz/DSC_0431.jpg"
+      onclick="openLightbox(this)"
+      data-camera="Nikon Z8"
+      data-lens="Nikkor Z 24-70mm f/2.8 S II"
+      data-focal="24mm"
+      data-aperture="10"
+      data-iso="220"
+      data-shutter="1/100"
+      data-note=""
+      >
+    <span class="caption">Cadiz</span>
+  </div>
+
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/cadiz/thumbs/DSC_0447-thumb.jpg"
+      data-full="images/travel/cadiz/DSC_0447.jpg"
+      onclick="openLightbox(this)"
+      data-camera="Nikon Z8"
+      data-lens="Nikkor Z 24-70mm f/2.8 S II"
+      data-focal="70mm"
+      data-aperture="10"
+      data-iso="64"
+      data-shutter="1/100"
+      data-note="-2 EV"
+      >
+    <span class="caption">Cadiz</span>
+  </div>
+
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/cadiz/thumbs/DSC_0461-thumb.jpg"
+      data-full="images/travel/cadiz/DSC_0461.jpg"
+      onclick="openLightbox(this)"
+      data-camera="Nikon Z8"
+      data-lens="Nikkor Z 24-70mm f/2.8 S II"
+      data-focal="24mm"
+      data-aperture="10"
+      data-iso="100"
+      data-shutter="1/60"
+      data-note=""
+      >
+    <span class="caption">Cadiz</span>
+  </div>
+
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/cadiz/thumbs/DSC_0471Pano-thumb.jpg"
+      data-full="images/travel/cadiz/DSC_0471Pano.jpg"
+      onclick="openLightbox(this)"
+      data-camera="Nikon Z8"
+      data-lens="Nikkor Z 24-70mm f/2.8 S II"
+      data-focal="24mm"
+      data-aperture="10"
+      data-iso="125"
+      data-shutter="1/500"
+      data-note=""
+      >
+    <span class="caption">Cadiz</span>
+  </div>
+
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/cadiz/thumbs/DSC_0665Pano-thumb.jpg"
+      data-full="images/travel/cadiz/DSC_0665Pano.jpg"
+      onclick="openLightbox(this)"
+      data-camera="Nikon Z8"
+      data-lens="Nikkor Z 24-70mm f/2.8 S II"
+      data-focal="70mm"
+      data-aperture="22"
+      data-iso="1800"
+      data-shutter="1/125"
+      data-note=""
+      >
+    <span class="caption">Cadiz</span>
+  </div>
+  
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/cadiz/thumbs/DSC_0693Pano-thumb.jpg"
+      data-full="images/travel/cadiz/DSC_0693Pano.jpg"
+      onclick="openLightbox(this)"
+      data-camera="Nikon Z8"
+      data-lens="Nikkor Z 24-70mm f/2.8 S II"
+      data-focal="28mm"
+      data-aperture="10"
+      data-iso="64"
+      data-shutter="1/200"
+      data-note=""
+      >
+    <span class="caption">Cadiz</span>
+  </div>
+
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/cadiz/thumbs/DSC_0782-thumb.jpg"
+      data-full="images/travel/cadiz/DSC_0782.jpg"
+      onclick="openLightbox(this)"
+      data-camera="Nikon Z8"
+      data-lens="Nikkor Z 24-70mm f/2.8 S II"
+      data-focal="70mm"
+      data-aperture="5.6"
+      data-iso="560"
+      data-shutter="1/500"
+      data-note="-2/3 EV"
+      >
+    <span class="caption">Cadiz</span>
+  </div>
+
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/cadiz/thumbs/DSC_1686-thumb.jpg"
+      data-full="images/travel/cadiz/DSC_1686.jpg"
+      onclick="openLightbox(this)"
+      data-camera="Nikon Z8"
+      data-lens="Nikkor Z 24-70mm f/2.8 S II"
+      data-focal="70mm"
+      data-aperture="10"
+      data-iso="640"
+      data-shutter="1/100"
+      data-note="-2/3 EV"
+      >
+    <span class="caption">Cadiz</span>
+  </div>
+  
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/cadiz/thumbs/DSC_3241-thumb.jpg"
+      data-full="images/travel/cadiz/DSC_3241.jpg"
+      onclick="openLightbox(this)"
+      data-camera="Nikon Z8"
+      data-lens="Nikkor Z 24-70mm f/2.8 S II"
+      data-focal="24mm"
+      data-aperture="6.3"
+      data-iso="3200"
+      data-shutter="1/80"
+      data-note="-1 EV"
+      >
+    <span class="caption">Cadiz</span>
+  </div>
+  
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/cadiz/thumbs/DSC_3243-thumb.jpg"
+      data-full="images/travel/cadiz/DSC_3243.jpg"
+      onclick="openLightbox(this)"
+      data-camera="Nikon Z8"
+      data-lens="Nikkor Z 24-70mm f/2.8 S II"
+      data-focal="24mm"
+      data-aperture="6.3"
+      data-iso="1000"
+      data-shutter="1/80"
+      data-note="-1 EV"
+      >
+    <span class="caption">Cadiz</span>
+  </div>
+  
+  <div class="gallery-item">
+    <img
+      class="thumb"
+      src="images/travel/cadiz/thumbs/DSC_3250-thumb.jpg"
+      data-full="images/travel/cadiz/DSC_3250.jpg"
+      onclick="openLightbox(this)"
+      data-camera="Nikon Z8"
+      data-lens="Nikkor Z 24-70mm f/2.8 S II"
+      data-focal="24mm"
+      data-aperture="2.8"
+      data-iso="5600"
+      data-shutter="1/50"
+      data-note=""
+      >
+    <span class="caption">Cadiz</span>
+  </div>
+  
+</div>
+
+<div id="lightbox">
+  <div class="lightbox-content">
+    <div id="lightbox-media"></div>
+    <div id="lightbox-caption"></div>
+    <div id="lightbox-meta"></div>
+    <div id="swipe-hint">← swipe →</div>
+  </div>
+</div>
+
+<script src="js/lightbox.js"></script>
+</body>
+</html>
+
+

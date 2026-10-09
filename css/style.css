@@ -205,13 +205,19 @@ h1 {
 .main-nav {
     display: flex;
     justify-content: center;
-    gap: 2rem;
+    flex-wrap: wrap;
+    gap: 0.5rem 2rem;
     margin: 2rem 0;
     padding: 1rem;
     font-size: 1.1rem;
     font-weight: bold;
     background-color: #111;
     text-align: center;
+}
+
+.main-nav .nav-break {
+  flex-basis: 100%;
+  height: 0;
 }
 
 .main-nav a {
@@ -223,9 +229,18 @@ h1 {
     color: #bbb;
     background: #333;
     text-decoration: none;
-    margin-right: 1.1rem;
     transition: color 0.2s;
 }
+
+.main-nav .nav-home       { color: #fff2cc; }
+.main-nav .nav-gallery    { color: #ffcaa3; }
+.main-nav .nav-travel     { color: #ffaabb; }
+.main-nav .nav-wildlife   { color: #e7b7f2; }
+.main-nav .nav-astro      { color: #b8c8ff; }
+.main-nav .nav-landcity   { color: #a8e4e0; }
+.main-nav .nav-macro      { color: #c8e89a; }
+.main-nav .nav-collection { color: #ffaa44; }
+
 
 .main-nav a:hover {
     color: #fff;
